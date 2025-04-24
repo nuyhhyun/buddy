@@ -11,7 +11,7 @@ struct ListView: View {
     @State private var selectedCategory: Category = .tech
     @State private var path = NavigationPath()
     
-    let defaultUser: User
+    @State var defaultUser: User
     
     @EnvironmentObject var dummyData: DummyData
     var filteredPosts: [Post] {
@@ -20,33 +20,15 @@ struct ListView: View {
     
     var body: some View {
         NavigationStack(path: $path) {
-            ScrollView {
-                VStack {
-                    HStack {
-                        Spacer()
-                        Text("Q&A")
-                            .font(.largeTitle)
-                            .bold()
-                        Spacer()
-                        Button {
-                            path.append(Route.newPost)
-                        } label: {
-                            Image(systemName: "plus")
-                                .foregroundColor(.accent)
-                        }
-                    }
-                    .padding()
-                    
-                    Divider()
+            VStack {
                     Picker("Category", selection: $selectedCategory) {
                         ForEach(Category.allCases) { category in
                             Text(category.rawValue.capitalized)
                         }
                     }
                     .pickerStyle(.segmented)
-                    .padding(.horizontal)
-
                     
+                ScrollView { // navigation title 자동 축소 불가
                     VStack(spacing: 12) {
                         ForEach(filteredPosts) { post in
                             NavigationLink(value: Route.viewPost(post)) {
@@ -54,29 +36,38 @@ struct ListView: View {
                             }
                             .buttonStyle(.plain)
                         }
-                        ForEach(filteredPosts) { post in
-                                    NavigationLink(value: Route.viewPost(post)) {
-                                        PostPreview(post: post)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
                     }
                     .padding(4)
                 }
             }
             .padding()
+            .navigationTitle("Q&A")
+            .toolbar {
+                    Button {
+                        if !path.isEmpty {
+                            path.removeLast()
+                        }
+                        path.append(Route.newPost)
+                    } label: {
+                        Image(systemName: "plus")
+                            .foregroundColor(.accent)
+                    }
+            }
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .newPost:
-                    WritePostView(post: nil)
+                    WritePostView(post: nil, path: $path, defaultUser: defaultUser)
                         .environmentObject(dummyData)
                 case .editPost(let post):
-                    WritePostView(post: post)
+                    WritePostView(post: post, path: $path, defaultUser: defaultUser)
                         .environmentObject(dummyData)
                 case .viewPost(let post):
                     if let index = dummyData.posts.firstIndex(where: { $0.id == post.id }) {
                         PostView(post: $dummyData.posts[index], path: $path, defaultUser: defaultUser)
                     }
+                case .listView(_):
+                    ListView(defaultUser: defaultUser)
+                        .environmentObject(dummyData)
                 }
             }
         }

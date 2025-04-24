@@ -25,13 +25,8 @@ struct CommentPreview: View {
                 .font(.callout)
                 .lineLimit(2)
                 .truncationMode(.tail)
-            
         }
-        .padding(16)
-        .overlay {
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.accentColor, lineWidth: 1)
-        }
+        .padding()
     }
 }
 

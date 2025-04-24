@@ -31,6 +31,9 @@ struct CommentListView: View {
                             }
                     }
                 }
+                .padding(.horizontal)
+                Divider()
+                    .padding(.horizontal, 16)
             }
         }
         .animation(.easeInOut, value: showMenu)

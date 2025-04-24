@@ -15,19 +15,24 @@ struct WritePostView: View {
     @State private var postTitle: String
     @State private var postContent: String
     
+    @Binding var path: NavigationPath
+    
+    let defaultUser: User
     let post: Post?
     var isNew: Bool { post == nil }
     var newOrEdit: String {
         isNew ? "새 질문 작성" : "질문 수정"
     }
     
-    init(post: Post? = nil) {
+    init(post: Post? = nil, path: Binding<NavigationPath>, defaultUser: User) {
         self.post = post
+        self._path = path
+        self.defaultUser = defaultUser
         
         let category = Category(rawValue: post?.category ?? "") ?? .tech
         let title = post?.title ?? ""
         let content = post?.content ?? ""
-        
+
         _selectedCategory = State(initialValue: category)
         _postTitle = State(initialValue: title)
         _postContent = State(initialValue: content)
@@ -35,14 +40,9 @@ struct WritePostView: View {
     
     var body: some View {
         ScrollView {
-            Text(newOrEdit)
-                .font(.title)
-                .bold()
-                .foregroundColor(.accentColor1)
-            Divider()
-                .padding([.leading, .trailing])
             
             VStack(alignment: .leading, spacing: 20) {
+                Spacer()
                 WritePostSectionView(title: "게시판", hasBorder: false) {
                     PullDownButton(selectedCategory: $selectedCategory)
                 }
@@ -57,38 +57,55 @@ struct WritePostView: View {
                         .frame(height: 300)
                 }
             }
+            .padding(.bottom)
             
-            HStack {
-                Spacer()
-                Button(isNew ? "올리기" : "수정하기") {
-                    let writtenPost = Post(
-                        id: post?.id ?? UUID(),
-                        user: dummyData.posts.first!.user,
-                        category: selectedCategory.rawValue,
-                        title: postTitle,
-                        content: postContent,
-                        timestamp: Date(),
-                        commentCount: post?.commentCount ?? 0,
-                        heartCount: post?.heartCount ?? 0,
-                        bookmarkCount: post?.bookmarkCount ?? 0
-                    )
-                    
-                    if isNew {
-                        dummyData.posts.insert(writtenPost, at: 0)
-                    } else if let index = dummyData.posts.firstIndex(where: { $0.id == writtenPost.id }) {
-                        dummyData.posts[index] = writtenPost
-                    }
-                    dismiss()
+            Button(isNew ? "올리기" : "수정하기") {
+                let writtenPost = Post(
+                    id: post?.id ?? UUID(),
+                    user: defaultUser,
+                    category: selectedCategory.rawValue,
+                    title: postTitle,
+                    content: postContent,
+                    timestamp: Date(),
+                    commentCount: post?.commentCount ?? 0,
+                    heartCount: post?.heartCount ?? 0,
+                    bookmarkCount: post?.bookmarkCount ?? 0
+                )
+                
+                if isNew {
+                    dummyData.posts.insert(writtenPost, at: 0)
+                } else if let index = dummyData.posts.firstIndex(where: { $0.id == writtenPost.id }) {
+                    dummyData.posts[index] = writtenPost
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(postTitle.isEmpty || postContent.isEmpty)
+                
+                if !path.isEmpty {
+                    path.removeLast()
+                }
+                path.append(Route.viewPost(writtenPost))
             }
-            .padding([.horizontal], 32)
+            .navigationTitle(newOrEdit)
+            .frame(width: 300)
+            .padding(8)
+            .background(Color.accentColor)
+            .foregroundColor(.white)
+            .font(.system(size: 16, weight: .bold))
+            .clipShape(RoundedRectangle(cornerRadius: 40))
+            .disabled(postTitle.isEmpty || postContent.isEmpty)
         }
     }
 }
 
 #Preview {
-    WritePostView()
+    PreviewableWritePostView()
         .environmentObject(DummyData.shared)
+}
+
+struct PreviewableWritePostView: View {
+    @State private var path = NavigationPath()
+    private let user = User(id: "dummy-user", name: "익명")
+
+    var body: some View {
+        WritePostView(path: $path, defaultUser: user)
+            .environmentObject(DummyData.shared)
+    }
 }

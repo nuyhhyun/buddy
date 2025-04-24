@@ -10,4 +10,5 @@ enum Route: Hashable {
     case newPost
     case editPost(Post)
     case viewPost(Post)
+    case listView(Category)
 }

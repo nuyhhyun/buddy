@@ -12,15 +12,24 @@ struct PostContentView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            VStack() {
-                Text("🌱 " + post.title)
-                    .font(.title)
-                    .bold()
-                    .foregroundColor(.accentColor1)
-                
-                Text(post.content)
-                    .padding()
-            }
+            Text(post.category)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 2)
+                .background((Color.accent.opacity(0.8)))
+                .cornerRadius(4)
+                .foregroundColor(.white)
+                .font(.callout)
+                .bold()
+            
+            Text(post.title)
+                .font(.title)
+                .bold()
+                .padding(.vertical)
+            
+            Text(post.content)
+                .padding(.bottom)
+            
+            Divider()
             
             HStack {
                 Text(post.timestamp.writtenTime)
@@ -31,6 +40,9 @@ struct PostContentView: View {
             .foregroundColor(.gray)
             .font(.subheadline)
         }
+        .padding(20)
+        //.background(Color.gray.opacity(0.1))
+        .cornerRadius(12)
     }
 }
 

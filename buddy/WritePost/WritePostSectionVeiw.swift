@@ -17,13 +17,12 @@ struct WritePostSectionView<Content: View>: View {
             Text(title)
                 .font(.title3)
                 .fontWeight(.heavy)
-                .foregroundColor(.accentColor1)
 
             Group {
                 if hasBorder {
                     content()
                         .padding(8)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(.accent, lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 1))
                 } else {
                     content()
                 }
@@ -37,6 +36,6 @@ struct WritePostSectionView<Content: View>: View {
 
 #Preview {
     WritePostSectionView(title: "제목", hasBorder: true) {
-        TextField("", text: .constant(""))
+        return TextField("", text: .constant(""))
     }
 }

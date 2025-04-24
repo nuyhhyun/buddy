@@ -34,7 +34,7 @@ struct PostPreview: View {
         .padding()
         .overlay {
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.accentColor, lineWidth: 1)
+                .stroke(Color.gray.opacity(0.4), lineWidth: 1)
         }
     }
 }
